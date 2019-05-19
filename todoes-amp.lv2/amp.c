@@ -24,16 +24,16 @@
 #define AMP_URI "https://github.com/todoesverso/lv2s/todoes-amp"
 
 typedef enum {
-	AMP_GAIN   = 0,
-	AMP_INPUT  = 1,
-	AMP_OUTPUT = 2
+  AMP_GAIN   = 0,
+  AMP_INPUT  = 1,
+  AMP_OUTPUT = 2
 } PortIndex;
 
 typedef struct {
-	// Port buffers
-	const float* gain;
-	const float* input;
-	float*       output;
+  // Port buffers
+  const float* gain;
+  const float* input;
+  float*       output;
 } Amp;
 
 static LV2_Handle
@@ -42,9 +42,17 @@ instantiate(const LV2_Descriptor*     descriptor,
             const char*               bundle_path,
             const LV2_Feature* const* features)
 {
-	Amp* amp = (Amp*)malloc(sizeof(Amp));
+  (void)descriptor;
+  (void)rate;
+  (void)bundle_path;
+  (void)features;
 
-	return (LV2_Handle)amp;
+  Amp* amp = (Amp*)calloc(1, sizeof(Amp));
+  if (!amp) {
+    return NULL;
+  }
+
+  return (LV2_Handle)amp;
 }
 
 static void
@@ -52,80 +60,84 @@ connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
-	Amp* amp = (Amp*)instance;
+  Amp* amp = (Amp*)instance;
 
-	switch ((PortIndex)port) {
-	case AMP_GAIN:
-		amp->gain = (const float*)data;
-		break;
-	case AMP_INPUT:
-		amp->input = (const float*)data;
-		break;
-	case AMP_OUTPUT:
-		amp->output = (float*)data;
-		break;
-	}
+  switch ((PortIndex)port) {
+  case AMP_GAIN:
+    amp->gain = (const float*)data;
+    break;
+  case AMP_INPUT:
+    amp->input = (const float*)data;
+    break;
+  case AMP_OUTPUT:
+    amp->output = (float*)data;
+    break;
+  }
 }
 
-static void
-activate(LV2_Handle instance)
-{
-}
 
 /** Define a macro for converting a gain in dB to a coefficient. */
 #define DB_CO(g) ((g) > -90.0f ? powf(10.0f, (g) * 0.05f) : 0.0f)
 
 static void
-run(LV2_Handle instance, uint32_t n_samples)
+run_mono(LV2_Handle instance, uint32_t n_samples)
 {
-	const Amp* amp = (const Amp*)instance;
+  const Amp* amp = (const Amp*)instance;
 
-	const float        gain   = *(amp->gain);
-	const float* const input  = amp->input;
-	float* const       output = amp->output;
+  const float        gain   = *(amp->gain);
+  const float* const input  = amp->input;
+  float* const       output = amp->output;
 
   const float coef = DB_CO(gain);
 
-	for (uint32_t pos = 0; pos < n_samples; pos++) {
-		output[pos] = input[pos] * coef;
+  for (uint32_t pos = 0; pos < n_samples; pos++) {
+    output[pos] = input[pos] * coef;
     debug_print("%f %f %f\n", output[pos], input[pos], coef);
-	}
-}
-
-static void
-deactivate(LV2_Handle instance)
-{
+  }
 }
 
 static void
 cleanup(LV2_Handle instance)
 {
-	free(instance);
+  free(instance);
 }
 
 static const void*
 extension_data(const char* uri)
 {
-	return NULL;
+  (void)uri;
+  return NULL;
 }
 
-static const LV2_Descriptor descriptor = {
-	AMP_URI,
-	instantiate,
-	connect_port,
-	activate,
-	run,
-	deactivate,
-	cleanup,
-	extension_data
+static const LV2_Descriptor descriptor_mono = {
+  AMP_URI,
+  instantiate,
+  connect_port,
+  NULL,
+  run_mono,
+  NULL,
+  cleanup,
+  extension_data
+};
+
+static const LV2_Descriptor descriptor_stereo = {
+  AMP_URI,
+  instantiate,
+  connect_port,
+  NULL,
+  run_mono,
+  NULL,
+  cleanup,
+  extension_data
 };
 
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)
 {
-	switch (index) {
-	case 0:  return &descriptor;
-	default: return NULL;
-	}
+  switch (index) {
+  case 0:  return &descriptor_mono;
+  case 1:  return &descriptor_stereo;
+  default: return NULL;
+  }
 }
