@@ -21,7 +21,7 @@
 
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 
-#define AMP_URI "https://github.com/todoesverso/lv2s/todoes-amp"
+#define URI_MONO "https://github.com/todoesverso/lv2s/todoes-amp#mono"
 
 typedef enum {
   AMP_GAIN   = 0,
@@ -110,7 +110,7 @@ extension_data(const char* uri)
 }
 
 static const LV2_Descriptor descriptor_mono = {
-  AMP_URI,
+  URI_MONO,
   instantiate,
   connect_port,
   NULL,
@@ -121,7 +121,7 @@ static const LV2_Descriptor descriptor_mono = {
 };
 
 static const LV2_Descriptor descriptor_stereo = {
-  AMP_URI,
+  URI_MONO,
   instantiate,
   connect_port,
   NULL,
