@@ -17,8 +17,8 @@
 #include <stdio.h>
 
 #ifdef DEBUG
-#define debug_print(fmt, ...) \
+#define DBG(fmt, ...) \
             do { if (DEBUG) {fprintf(stderr, "(%s:%d) " fmt, __FILE__, __LINE__, __VA_ARGS__);} } while (0)
 #else
-#define debug_print(fmt, ...) ((void)0)
+#define DBG(fmt, ...) ((void)0)
 #endif

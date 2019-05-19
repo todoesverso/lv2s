@@ -92,7 +92,7 @@ run_mono(LV2_Handle instance, uint32_t n_samples)
 
   for (uint32_t pos = 0; pos < n_samples; pos++) {
     output[pos] = input[pos] * coef;
-    debug_print("%f %f %f\n", output[pos], input[pos], coef);
+    DBG("%f %f %f\n", output[pos], input[pos], coef);
   }
 }
 
