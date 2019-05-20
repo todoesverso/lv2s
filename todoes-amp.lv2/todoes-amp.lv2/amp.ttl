@@ -8,15 +8,7 @@
   a lv2:Plugin ,
     lv2:AmplifierPlugin ;
   lv2:project <https://github.com/todoesverso/lv2s> ;
-  doap:name "Simple Amplifier" ,
-    "简单放大器"@ch ,
-    "Einfacher Verstärker"@de ,
-    "Simple Amp"@en-gb ,
-    "Amplificador Simple"@es ,
-    "Amplificateur de Base"@fr ,
-    "Amplificatore Semplice"@it ,
-    "簡単なアンプ"@jp ,
-    "Просто Усилитель"@ru ;
+  doap:name "Simple Mono Amplifier" ;
   doap:license <http://opensource.org/licenses/isc> ;
   lv2:optionalFeature lv2:hardRTCapable ;
   lv2:port [
@@ -24,15 +16,7 @@
     lv2:ControlPort ;
     lv2:index 0 ;
     lv2:symbol "gain" ;
-    lv2:name "Gain" ,
-      "收益"@ch ,
-      "Gewinn"@de ,
-      "Gain"@en-gb ,
-      "Aumento"@es ,
-      "Gain"@fr ,
-      "Guadagno"@it ,
-      "利益"@jp ,
-      "Увеличение"@ru ;
+    lv2:name "Gain" ;
     lv2:default 0.0 ;
     lv2:minimum -90.0 ;
     lv2:maximum 24.0 ;
@@ -63,3 +47,62 @@
       lv2:symbol "out" ;
       lv2:name "Out"
   ] .
+
+<https://github.com/todoesverso/lv2s/todoes-amp#stereo>
+  a lv2:Plugin ,
+    lv2:AmplifierPlugin ;
+  lv2:project <https://github.com/todoesverso/lv2s> ;
+  doap:name "Simple Stereo Amplifier" ;
+  doap:license <http://opensource.org/licenses/isc> ;
+  lv2:optionalFeature lv2:hardRTCapable ;
+  lv2:port [
+    a lv2:InputPort ,
+    lv2:ControlPort ;
+    lv2:index 0 ;
+    lv2:symbol "gain" ;
+    lv2:name "Gain" ;
+    lv2:default 0.0 ;
+    lv2:minimum -90.0 ;
+    lv2:maximum 24.0 ;
+    units:unit units:db ;
+    lv2:scalePoint [
+      rdfs:label "+5" ;
+      rdf:value 5.0
+    ] , [
+      rdfs:label "0" ;
+      rdf:value 0.0
+    ] , [
+      rdfs:label "-5" ;
+      rdf:value -5.0
+    ] , [
+      rdfs:label "-10" ;
+      rdf:value -10.0
+    ]
+  ] , [
+    a lv2:AudioPort ,
+      lv2:InputPort ;
+      lv2:index 1 ;
+      lv2:symbol "inL" ;
+      lv2:name "InL"
+  ] , [
+    a lv2:AudioPort ,
+      lv2:OutputPort ;
+      lv2:index 2 ;
+      lv2:symbol "outL" ;
+      lv2:name "OutL"
+  ] , [
+    a lv2:AudioPort ,
+      lv2:InputPort ;
+      lv2:index 3 ;
+      lv2:symbol "inR" ;
+      lv2:name "InR"
+  ] , [
+    a lv2:AudioPort ,
+      lv2:OutputPort ;
+      lv2:index 4 ;
+      lv2:symbol "outR" ;
+      lv2:name "OutR"
+  ] .
+
+
+

@@ -21,19 +21,23 @@
 
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 
-#define URI_MONO "https://github.com/todoesverso/lv2s/todoes-amp#mono"
+#define URI "https://github.com/todoesverso/lv2s/todoes-amp"
 
 typedef enum {
-  AMP_GAIN   = 0,
-  AMP_INPUT  = 1,
-  AMP_OUTPUT = 2
+  GAIN   = 0,
+  IN_L  = 1,
+  OUT_L = 2,
+  IN_R  = 3,
+  OUT_R = 4
 } PortIndex;
 
 typedef struct {
   // Port buffers
   const float* gain;
-  const float* input;
-  float*       output;
+  const float* in_l;
+  const float* in_r;
+  float*       out_l;
+  float*       out_r;
 } Amp;
 
 static LV2_Handle
@@ -63,14 +67,20 @@ connect_port(LV2_Handle instance,
   Amp* amp = (Amp*)instance;
 
   switch ((PortIndex)port) {
-  case AMP_GAIN:
+  case GAIN:
     amp->gain = (const float*)data;
     break;
-  case AMP_INPUT:
-    amp->input = (const float*)data;
+  case IN_L:
+    amp->in_l = (const float*)data;
     break;
-  case AMP_OUTPUT:
-    amp->output = (float*)data;
+  case IN_R:
+    amp->in_r = (const float*)data;
+    break;
+  case OUT_L:
+    amp->out_l = (float*)data;
+    break;
+  case OUT_R:
+    amp->out_r = (float*)data;
     break;
   }
 }
@@ -85,8 +95,8 @@ run_mono(LV2_Handle instance, uint32_t n_samples)
   const Amp* amp = (const Amp*)instance;
 
   const float        gain   = *(amp->gain);
-  const float* const input  = amp->input;
-  float* const       output = amp->output;
+  const float* const input  = amp->in_l;
+  float* const       output = amp->out_l;
 
   const float coef = DB_CO(gain);
 
@@ -95,6 +105,27 @@ run_mono(LV2_Handle instance, uint32_t n_samples)
     DBG("%f %f %f\n", output[pos], input[pos], coef);
   }
 }
+
+static void
+run_stereo(LV2_Handle instance, uint32_t n_samples)
+{
+  const Amp* amp = (const Amp*)instance;
+
+  const float        gain   = *(amp->gain);
+  const float* const inL  = amp->in_l;
+  const float* const inR  = amp->in_r;
+  float* const       outL = amp->out_l;
+  float* const       outR = amp->out_r;
+
+  const float coef = DB_CO(gain);
+
+  for (uint32_t pos = 0; pos < n_samples; pos++) {
+    outL[pos] = inL[pos] * coef;
+    outR[pos] = inR[pos] * coef;
+    DBG("%f %f %f\n", outL[pos], inL[pos], outR[pos], inL[pos], coef);
+  }
+}
+
 
 static void
 cleanup(LV2_Handle instance)
@@ -110,7 +141,7 @@ extension_data(const char* uri)
 }
 
 static const LV2_Descriptor descriptor_mono = {
-  URI_MONO,
+  URI "#mono",
   instantiate,
   connect_port,
   NULL,
@@ -121,11 +152,11 @@ static const LV2_Descriptor descriptor_mono = {
 };
 
 static const LV2_Descriptor descriptor_stereo = {
-  URI_MONO,
+  URI "#stereo",
   instantiate,
   connect_port,
   NULL,
-  run_mono,
+  run_stereo,
   NULL,
   cleanup,
   extension_data
